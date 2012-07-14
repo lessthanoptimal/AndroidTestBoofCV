@@ -1,0 +1,126 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <TableLayout
+        android:id="@+id/tableLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" >
+
+        <TableRow
+            android:id="@+id/tableRow0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#fff1f1f1" >
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="Benchmark" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:gravity="center_horizontal"
+                android:text="Score" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonConvert"
+                android:layout_weight="1"
+                android:text="Image Convert" 
+                android:onClick="switchImageConvert"/>
+
+            <TextView
+                android:id="@+id/textLowLevel"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="Unknown" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonLowLevel"
+                android:layout_weight="1"
+                android:text="Low Level" 
+                android:onClick="switchLowLevel"/>
+
+            <TextView
+                android:id="@+id/textLowLevel"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="Unknown" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonBinary"
+                android:layout_weight="1"
+                android:text="Binary" 
+                android:onClick="switchBinary"/>
+
+            <TextView
+                android:id="@+id/textTracking"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="Unknown" />
+        </TableRow>
+        
+        <TableRow
+            android:id="@+id/tableRow4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonDetection"
+                android:layout_weight="1"
+                android:text="Feature Detection" 
+                android:onClick="switchDetect"/>
+
+            <TextView
+                android:id="@+id/textDetection"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="Unknown" />
+        </TableRow>
+        
+        <TableRow
+            android:id="@+id/tableRow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/buttonStereo"
+                android:layout_weight="1"
+                android:text="Stereo Vision" />
+
+            <TextView
+                android:id="@+id/textTracking"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="Unknown" />
+        </TableRow>
+    </TableLayout>
+
+</RelativeLayout>
