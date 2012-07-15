@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageSingleBand;
 import boofcv.struct.image.ImageUInt8;
+import boofcv.struct.image.MultiSpectral;
 
 /**
  * Functions for converting Android Bitmap images into BoofCV formats.
@@ -47,6 +48,33 @@ public class ConvertBitmap {
 		return output;
 	}
 	
+	public static <T extends ImageSingleBand>
+	MultiSpectral<T> bitmapToMS( Bitmap input , MultiSpectral<T> output , Class<T> type ) {
+		if( output == null ) {
+			output = new MultiSpectral<T>( type , input.getWidth() , input.getHeight() , 4 );
+		} else if( output.getWidth() != input.getWidth() || output.getHeight() != input.getHeight() ) {
+			throw new IllegalArgumentException("Image shapes are not the same");
+		}
+		
+		if( type == ImageUInt8.class )
+			ImplConvertBitmap.bitmapToMultiReflection_U8(input, (MultiSpectral)output);
+		else if( type == ImageFloat32.class )
+			ImplConvertBitmap.bitmapToMultiReflection_F32(input, (MultiSpectral)output);
+		else
+			throw new IllegalArgumentException("Unsupported BoofCV Type");
+
+		return output;
+	}
+	
+	public static void grayToBitmap( ImageSingleBand input , Bitmap output ) {
+		if( input instanceof ImageUInt8 )
+			grayToBitmap((ImageUInt8)input,output);
+		else if( input instanceof ImageFloat32 )
+			grayToBitmap((ImageFloat32)input,output);
+		else
+			throw new IllegalArgumentException("Unsupported BoofCV Type");
+	}
+	
 	public static void grayToBitmap( ImageUInt8 input , Bitmap output ) {
 		if( output.getWidth() != input.getWidth() || output.getHeight() != input.getHeight() ) {
 			throw new IllegalArgumentException("Image shapes are not the same");
@@ -61,6 +89,20 @@ public class ConvertBitmap {
 		}
 		
 		ImplConvertBitmap.grayToBitmapReflection(input, output);
+	}
+	
+	public static <T extends ImageSingleBand>
+	void multiToBitmap(  MultiSpectral<T> input , Bitmap output ) {
+		if( output.getWidth() != input.getWidth() || output.getHeight() != input.getHeight() ) {
+			throw new IllegalArgumentException("Image shapes are not the same");
+		}
+		
+		if( input.getType() == ImageUInt8.class )
+			ImplConvertBitmap.multiToBitmapReflection_U8((MultiSpectral)input, output);
+		else if( input.getType() == ImageFloat32.class )
+			ImplConvertBitmap.multiToBitmapReflection_F32((MultiSpectral)input, output);
+		else
+			throw new IllegalArgumentException("Unsupported BoofCV Type");
 	}
 	
 	public static Bitmap grayToBitmap( ImageUInt8 input , Bitmap.Config config ) {

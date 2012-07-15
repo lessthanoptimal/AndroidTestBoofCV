@@ -91,13 +91,13 @@
             android:layout_height="wrap_content" >
 
             <Button
-                android:id="@+id/buttonDetection"
+                android:id="@+id/buttonFeatures"
                 android:layout_weight="1"
-                android:text="Feature Detection" 
-                android:onClick="switchDetect"/>
+                android:text="Features" 
+                android:onClick="switchFeatures"/>
 
             <TextView
-                android:id="@+id/textDetection"
+                android:id="@+id/textFeatures"
                 android:layout_marginLeft="5dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
@@ -110,9 +110,10 @@
             android:layout_height="wrap_content" >
 
             <Button
-                android:id="@+id/buttonStereo"
+                android:id="@+id/buttonVisualTest"
                 android:layout_weight="1"
-                android:text="Stereo Vision" />
+                android:text="Visual Test"
+                android:onClick="switchVisualTest"/>
 
             <TextView
                 android:id="@+id/textTracking"

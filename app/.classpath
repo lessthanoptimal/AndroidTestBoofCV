@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="libs/BoofCV.jar" sourcepath="C:/Users/foo/Documents/code/boofcv/main/feature"/>
+	<classpathentry kind="lib" path="libs/BoofCV.jar" sourcepath="C:/Users/foo/Documents/code/boofcv/main/feature/src"/>
 	<classpathentry kind="lib" path="libs/EJML.jar"/>
 	<classpathentry kind="lib" path="libs/GeoRegression.jar"/>
 	<classpathentry kind="lib" path="libs/libpja.jar"/>

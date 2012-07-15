@@ -8,6 +8,10 @@
 package boofcv.benchmark.android;
 
 public final class R {
+    public static final class array {
+        public static final int AndroidTypes=0x7f060000;
+        public static final int BoofcvTypes=0x7f060001;
+    }
     public static final class attr {
     }
     public static final class dimen {
@@ -28,35 +32,41 @@ public final class R {
         public static final int sunflowers=0x7f020009;
     }
     public static final class id {
-        public static final int buttonBinary=0x7f08000d;
-        public static final int buttonConvert=0x7f080008;
-        public static final int buttonDetection=0x7f080010;
-        public static final int buttonLowLevel=0x7f08000b;
-        public static final int buttonStart=0x7f080001;
-        public static final int buttonStereo=0x7f080013;
-        public static final int menu_settings=0x7f080014;
-        public static final int progressBar1=0x7f080000;
-        public static final int tableLayout1=0x7f080003;
-        public static final int tableRow0=0x7f080004;
-        public static final int tableRow1=0x7f080007;
-        public static final int tableRow2=0x7f08000a;
-        public static final int tableRow3=0x7f08000c;
-        public static final int tableRow4=0x7f08000f;
-        public static final int tableRow5=0x7f080012;
-        public static final int textDetection=0x7f080011;
-        public static final int textLowLevel=0x7f080009;
-        public static final int textTracking=0x7f08000e;
-        public static final int textView2=0x7f080005;
-        public static final int textView3=0x7f080006;
-        public static final int textViewResults=0x7f080002;
+        public static final int buttonBinary=0x7f09000d;
+        public static final int buttonConvert=0x7f090008;
+        public static final int buttonFeatures=0x7f090010;
+        public static final int buttonLowLevel=0x7f09000b;
+        public static final int buttonStart=0x7f090001;
+        public static final int buttonVisualTest=0x7f090013;
+        public static final int imageViewTest=0x7f090017;
+        public static final int menu_settings=0x7f090018;
+        public static final int progressBar1=0x7f090000;
+        public static final int spinnerAndroidTypes=0x7f090015;
+        public static final int spinnerBoofcvTypes=0x7f090016;
+        public static final int tableLayout1=0x7f090003;
+        public static final int tableRow0=0x7f090004;
+        public static final int tableRow1=0x7f090007;
+        public static final int tableRow2=0x7f09000a;
+        public static final int tableRow3=0x7f09000c;
+        public static final int tableRow4=0x7f09000f;
+        public static final int tableRow5=0x7f090012;
+        public static final int textFeatures=0x7f090011;
+        public static final int textLowLevel=0x7f090009;
+        public static final int textTracking=0x7f09000e;
+        public static final int textView1=0x7f090014;
+        public static final int textView2=0x7f090005;
+        public static final int textView3=0x7f090006;
+        public static final int textViewResults=0x7f090002;
     }
     public static final class layout {
         public static final int activity_low_level=0x7f030000;
         public static final int activity_main=0x7f030001;
+        public static final int activity_visual_debug=0x7f030002;
     }
     public static final class menu {
-        public static final int activity_low_level=0x7f070000;
-        public static final int activity_main=0x7f070001;
+        public static final int activity_low_level=0x7f080000;
+        public static final int activity_main=0x7f080001;
+        public static final int activity_visual_debug=0x7f080002;
     }
     public static final class string {
         public static final int FeatureTracking=0x7f050006;
@@ -67,8 +77,9 @@ public final class R {
         public static final int menu_settings=0x7f050002;
         public static final int title_activity_low_level=0x7f050007;
         public static final int title_activity_main=0x7f050003;
+        public static final int title_activity_visual_debug=0x7f050008;
     }
     public static final class style {
-        public static final int AppTheme=0x7f060000;
+        public static final int AppTheme=0x7f070000;
     }
 }

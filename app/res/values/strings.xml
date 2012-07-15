@@ -8,5 +8,16 @@
     <string name="ImageIO">ImageIO</string>
     <string name="FeatureTracking">FeatureTracking</string>
     <string name="title_activity_low_level">LowLevelActivity</string>
+    <string name="title_activity_visual_debug">VisualDebugActivity</string>
+    <string-array name="AndroidTypes">
+        <item >8888</item>
+        <item >565</item>
+    </string-array>
+    <string-array name="BoofcvTypes">
+        <item >ImageUInt8</item>
+        <item >ImageFloat32</item>
+        <item >MultiSpectral U8</item>
+        <item >MultiSpectral F32</item>
+    </string-array>
 
 </resources>

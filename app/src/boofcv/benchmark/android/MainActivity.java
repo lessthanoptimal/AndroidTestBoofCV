@@ -41,9 +41,14 @@ public class MainActivity extends Activity {
     	startActivity(intent);
     }
     
-    public void switchDetect( View view ) {
+    public void switchFeatures( View view ) {
     	Intent intent = new Intent(this, LowLevelActivity.class);
-    	intent.putExtra(WHICH_MESSAGE, new DetectionBenchmark());
+    	intent.putExtra(WHICH_MESSAGE, new FeatureBenchmark());
+    	startActivity(intent);
+    }
+    
+    public void switchVisualTest( View view ) {
+    	Intent intent = new Intent(this, VisualDebugActivity.class);
     	startActivity(intent);
     }
 }

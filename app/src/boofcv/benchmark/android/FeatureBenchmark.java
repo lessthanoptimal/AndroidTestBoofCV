@@ -1,30 +1,42 @@
 package boofcv.benchmark.android;
 
+import georegression.struct.point.Point2D_F64;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.TextView;
+import boofcv.abst.feature.describe.DescribeRegionPoint;
 import boofcv.abst.feature.detect.edge.DetectEdgeContour;
 import boofcv.abst.feature.detect.extract.GeneralFeatureDetector;
 import boofcv.abst.feature.detect.interest.InterestPointDetector;
 import boofcv.abst.feature.detect.line.DetectLineHoughPolar;
 import boofcv.alg.filter.derivative.GImageDerivativeOps;
+import boofcv.factory.feature.describe.FactoryDescribeRegionPoint;
 import boofcv.factory.feature.detect.edge.FactoryDetectEdgeContour;
 import boofcv.factory.feature.detect.interest.FactoryDetectPoint;
 import boofcv.factory.feature.detect.interest.FactoryInterestPoint;
 import boofcv.factory.feature.detect.line.FactoryDetectLineAlgs;
+import boofcv.struct.feature.TupleDesc_F64;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageSingleBand;
 import boofcv.struct.image.ImageUInt8;
 
-public class DetectionBenchmark extends BenchmarkThread {
+public class FeatureBenchmark extends BenchmarkThread {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final int NUM_DESCRIBE = 300;
 	
 	Bitmap bitmap;
 	Bitmap bitmapLines;
 	InterestPointDetector detector;
 	DetectLineHoughPolar detectorLine;
+	DescribeRegionPoint describe;
 	
 	@Override
 	public void configure( TextView view, Resources resources, Listener listener ) {
@@ -48,6 +60,7 @@ public class DetectionBenchmark extends BenchmarkThread {
 	  	
 	  	publishText(" Point input size = "+bitmap.getWidth()+" x "+bitmap.getHeight()+"\n");
 	  	publishText(" Line input size = "+bitmapLines.getWidth()+" x "+bitmapLines.getHeight()+"\n");
+	  	publishText(" Describe "+NUM_DESCRIBE+" features\n");
 	  	publishText("\n");
 	  	
     	benchmark(ImageUInt8.class,"U8");
@@ -66,6 +79,8 @@ public class DetectionBenchmark extends BenchmarkThread {
 		T imageLine = ConvertBitmap.bitmapToGray(bitmapLines, null, imageType);
 		benchmarkLines(imageLine,imageName);
 		benchmarkContour(imageLine,imageName);
+		
+		benchmarkDescribe(imageLine,imageName);
 	}
 	
 	private <T extends ImageSingleBand> void benchmarkPoints( final T image , String imageName ) {
@@ -131,7 +146,47 @@ public class DetectionBenchmark extends BenchmarkThread {
 		benchmark("Canny Edge "+imageName,new EvalPA() {
 			public void _process() {canny.process(image);}});
 	}
+	
+	private <T extends ImageSingleBand> void benchmarkDescribe( final T image , String imageName ) {
+		Class<T> imageType = (Class)image.getClass();
+		
+		// randomly create interest points to describe
+		Random rand = new Random(234);
+		final List<Point2D_F64> locs = new ArrayList<Point2D_F64>();
+		final double scales[] = new double[NUM_DESCRIBE];
+		
+		for( int i = 0; i < NUM_DESCRIBE; i++ ) {
+			double x = rand.nextDouble()*image.width;
+			double y = rand.nextDouble()*image.height;
+			
+			locs.add( new Point2D_F64(x,y) );
+			scales[i] = rand.nextDouble()*5+0.9;
+		}
 
+		describe = FactoryDescribeRegionPoint.surf(true, imageType);
+
+		benchmark("Desc SURF "+imageName,new EvalPA() {
+			public void _process() {computeDescription(image,locs,scales);}});
+		
+		describe = FactoryDescribeRegionPoint.surfm(true, imageType);
+		benchmark("Desc SURFM "+imageName,new EvalPA() {
+			public void _process() {computeDescription(image,locs,scales);}});
+		
+		describe = FactoryDescribeRegionPoint.pixel(7,7,imageType);
+		benchmark("Desc Pixel "+imageName,new EvalPA() {
+			public void _process() {computeDescription(image,locs,scales);}});
+	}
+
+	private void computeDescription(ImageSingleBand image, List<Point2D_F64> locs, double scales[]) {
+		TupleDesc_F64 desc = new TupleDesc_F64(describe.getDescriptionLength());
+		describe.setImage(image);
+		
+		for( int i = 0; i < NUM_DESCRIBE; i++ ) {
+			Point2D_F64 p = locs.get(i);
+			describe.process(p.x, p.y , 0, scales[i], desc);
+		}
+	}
+	
 	
 	@Override
 	public String getDescription() {
