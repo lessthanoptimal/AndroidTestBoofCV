@@ -1,6 +1,7 @@
 package boofcv.benchmark.android;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,6 +16,18 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
+        CentralMemory.reset();
+    }
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    	if( CentralMemory.isThreadRunning() ) {
+    		new KillBenchmarkThread(this).start();
+    	} else {
+    		CentralMemory.reset();
+    	}
     }
 
     @Override
@@ -24,26 +37,29 @@ public class MainActivity extends Activity {
     }
     
     public void switchImageConvert( View view ) {
+    	if( CentralMemory.isThreadRunning() )
+    		throw new RuntimeException("Failed sanity check!");
+    	
     	Intent intent = new Intent(this, LowLevelActivity.class);
-    	intent.putExtra(WHICH_MESSAGE, new ImageConvertBenchmark());
+    	CentralMemory.setBenchmark(ImageConvertBenchmark.class);
     	startActivity(intent);
     }
 
     public void switchLowLevel( View view ) {
     	Intent intent = new Intent(this, LowLevelActivity.class);
-    	intent.putExtra(WHICH_MESSAGE, new LowLevelBenchmark());
+    	CentralMemory.setBenchmark(LowLevelBenchmark.class);
     	startActivity(intent);
     }
     
     public void switchBinary( View view ) {
     	Intent intent = new Intent(this, LowLevelActivity.class);
-    	intent.putExtra(WHICH_MESSAGE, new BinaryOpsBenchmark());
+    	CentralMemory.setBenchmark(BinaryOpsBenchmark.class);
     	startActivity(intent);
     }
     
     public void switchFeatures( View view ) {
     	Intent intent = new Intent(this, LowLevelActivity.class);
-    	intent.putExtra(WHICH_MESSAGE, new FeatureBenchmark());
+    	CentralMemory.setBenchmark(FeatureBenchmark.class);
     	startActivity(intent);
     }
     

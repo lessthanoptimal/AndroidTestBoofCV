@@ -4,7 +4,7 @@ import georegression.struct.affine.Affine2D_F32;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.TextView;
+import android.view.View;
 import boofcv.abst.filter.blur.BlurStorageFilter;
 import boofcv.alg.distort.DistortImageOps;
 import boofcv.alg.distort.PixelTransformAffine_F32;
@@ -27,9 +27,7 @@ public class LowLevelBenchmark extends BenchmarkThread {
 	InterpolatePixel interp;
 	
 	@Override
-	public void configure( TextView view, Resources resources, Listener listener ) {
-		super.configure(view,resources,listener);
-		
+	public void configure( Resources resources) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inScaled = false;
 		

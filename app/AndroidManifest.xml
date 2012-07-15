@@ -27,11 +27,6 @@
         <activity
             android:name=".VisualDebugActivity"
             android:label="@string/title_activity_visual_debug" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 

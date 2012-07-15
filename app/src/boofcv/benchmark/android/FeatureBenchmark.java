@@ -9,7 +9,7 @@ import java.util.Random;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.TextView;
+import android.view.View;
 import boofcv.abst.feature.describe.DescribeRegionPoint;
 import boofcv.abst.feature.detect.edge.DetectEdgeContour;
 import boofcv.abst.feature.detect.extract.GeneralFeatureDetector;
@@ -39,9 +39,7 @@ public class FeatureBenchmark extends BenchmarkThread {
 	DescribeRegionPoint describe;
 	
 	@Override
-	public void configure( TextView view, Resources resources, Listener listener ) {
-		super.configure(view,resources,listener);
-		
+	public void configure( Resources resources ) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inScaled = false;
 		

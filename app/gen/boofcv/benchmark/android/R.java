@@ -38,11 +38,11 @@ public final class R {
         public static final int buttonLowLevel=0x7f09000b;
         public static final int buttonStart=0x7f090001;
         public static final int buttonVisualTest=0x7f090013;
-        public static final int imageViewTest=0x7f090017;
-        public static final int menu_settings=0x7f090018;
+        public static final int imageViewTest=0x7f090018;
+        public static final int menu_settings=0x7f090019;
         public static final int progressBar1=0x7f090000;
-        public static final int spinnerAndroidTypes=0x7f090015;
-        public static final int spinnerBoofcvTypes=0x7f090016;
+        public static final int spinnerAndroidTypes=0x7f090016;
+        public static final int spinnerBoofcvTypes=0x7f090017;
         public static final int tableLayout1=0x7f090003;
         public static final int tableRow0=0x7f090004;
         public static final int tableRow1=0x7f090007;
@@ -53,10 +53,11 @@ public final class R {
         public static final int textFeatures=0x7f090011;
         public static final int textLowLevel=0x7f090009;
         public static final int textTracking=0x7f09000e;
-        public static final int textView1=0x7f090014;
+        public static final int textView1=0x7f090015;
         public static final int textView2=0x7f090005;
         public static final int textView3=0x7f090006;
         public static final int textViewResults=0x7f090002;
+        public static final int textVisualTest=0x7f090014;
     }
     public static final class layout {
         public static final int activity_low_level=0x7f030000;

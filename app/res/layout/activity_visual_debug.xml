@@ -8,14 +8,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:text="Android" />
+        android:text="Android"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="BoofCV" />
+        android:text="BoofCV"
+        android:textSize="16sp" />
 
     <Spinner
         android:id="@+id/spinnerAndroidTypes"

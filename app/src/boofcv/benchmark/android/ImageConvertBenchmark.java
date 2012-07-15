@@ -3,7 +3,7 @@ package boofcv.benchmark.android;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.TextView;
+import android.view.View;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageUInt8;
 import boofcv.struct.image.MultiSpectral;
@@ -16,9 +16,7 @@ public class ImageConvertBenchmark extends BenchmarkThread {
 	Bitmap bitmapOut;
 	
 	@Override
-	public void configure( TextView view, Resources resources, Listener listener ) {
-		super.configure(view,resources,listener);
-		
+	public void configure( Resources resources ) {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inScaled = false;
 		

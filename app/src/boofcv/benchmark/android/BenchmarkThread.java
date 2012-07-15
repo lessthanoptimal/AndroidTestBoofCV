@@ -1,14 +1,11 @@
 package boofcv.benchmark.android;
 
 import java.io.Serializable;
+import java.util.Stack;
 
 import android.content.res.Resources;
-import android.widget.TextView;
 
 public abstract class BenchmarkThread extends Thread implements Serializable {
-	
-	TextView view;
-	Listener listener;
 	
 	long targetTime = 1000;
 	
@@ -16,22 +13,23 @@ public abstract class BenchmarkThread extends Thread implements Serializable {
 		setPriority(MAX_PRIORITY);
 	}
 	
-	public void configure( TextView textView, Resources resources, Listener listener ) {
-		this.view = textView;
-		this.listener = listener;
-	}
+	public abstract void configure( Resources resources);
 	
 	public abstract String getDescription();
 	
 	public void publishText( final String text ) {
-		view.post(new Runnable() {
-            public void run() {
-            	view.append(text);
-            }
-        });
+		CentralMemory.appendText(text);
 	}
 	
 	public void benchmark( String name , EvaluationProcess process ) {
+		// lets the thread be killed by an interrupt
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			return;
+		}
+
 		long N = 1;
 		long found = evaluate(N,process);
 		
@@ -64,22 +62,15 @@ public abstract class BenchmarkThread extends Thread implements Serializable {
 	}
 	
 	public void publishResults( final String benchmarkName , final double results ) {
-		view.post(new Runnable() {
-            public void run() {
-            	view.append(String.format("%22.22s | %6.1f\n",benchmarkName,results));
-            }
-        });
+		CentralMemory.appendText(String.format("%22.22s | %6.1f\n",benchmarkName,results));
 	}
 	
 	public void finished() {
-		view.post(new Runnable() {
-            public void run() {
-            	listener.benchmarkFinished();
-            }
-        });
+		CentralMemory.markFinished();
 	}
-
+	
 	public interface Listener {
+		public void updateText();
 		public void benchmarkFinished();
 	}
 }

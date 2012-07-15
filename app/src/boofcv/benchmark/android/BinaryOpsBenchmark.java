@@ -3,7 +3,7 @@ package boofcv.benchmark.android;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.widget.TextView;
+import android.view.View;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.GThresholdImageOps;
 import boofcv.alg.misc.GPixelMath;
@@ -19,9 +19,8 @@ public class BinaryOpsBenchmark extends BenchmarkThread {
 	Bitmap bitmap;
 	
 	@Override
-	public void configure( TextView view, Resources resources, Listener listener ) {
-		super.configure(view,resources,listener);
-		
+	public void configure( Resources resources ) {
+
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inScaled = false;
 		
