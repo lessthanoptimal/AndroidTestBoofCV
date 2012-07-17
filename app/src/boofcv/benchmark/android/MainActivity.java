@@ -1,21 +1,26 @@
 package boofcv.benchmark.android;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
 	public static final String WHICH_MESSAGE = "WhichBenchmark";
+	public static final String RESULTS_NAME = "results.txt";
 	
 	BenchmarkResultsCodec codec;
 	
@@ -29,6 +34,20 @@ public class MainActivity extends Activity {
         CentralMemory.reset();
         
         codec = new BenchmarkResultsCodec(this);
+        
+        // Load the baseline results
+        CentralMemory.storageBaseLine = codec.read(null,true);
+        if( CentralMemory.storageBaseLine == null ) {
+        	Toast.makeText(this, "Can't find baseline results", Toast.LENGTH_SHORT).show();
+        	CentralMemory.storageBaseLine = new HashMap<String,BenchmarkResults>();
+        }
+        // Load previously computed results
+        CentralMemory.storageResults = codec.read(RESULTS_NAME,false);
+        if( CentralMemory.storageResults == null ) {
+        	CentralMemory.storageResults = new HashMap<String,BenchmarkResults>();
+        } else {
+        	refreshScoreDisplay();
+        }
     }
     
     @Override
@@ -41,18 +60,23 @@ public class MainActivity extends Activity {
     	
     		if( CentralMemory.storageUpdated ) {
     			CentralMemory.storageUpdated = false;
-				updateScore(LowLevelBenchmark.NAME, R.id.textLowLevel);
-				updateScore(ImageConvertBenchmark.NAME, R.id.textConvert);
-				updateScore(BinaryOpsBenchmark.NAME, R.id.textBinary);
-				updateScore(FeatureBenchmark.NAME, R.id.textFeatures);
+    			refreshScoreDisplay();
 
 				List<BenchmarkResults> results = new ArrayList<BenchmarkResults>(
 						CentralMemory.storageResults.values());
-				codec.write("local_results.txt", results);
+				codec.write(RESULTS_NAME, results);
     		}
     	}
+    }
     
-    	
+    /**
+     * Updates the scores shown to the right of each benchmark button
+     */
+    private void refreshScoreDisplay() {
+		updateScore(LowLevelBenchmark.NAME, R.id.textLowLevel);
+		updateScore(ImageConvertBenchmark.NAME, R.id.textConvert);
+		updateScore(BinaryOpsBenchmark.NAME, R.id.textBinary);
+		updateScore(FeatureBenchmark.NAME, R.id.textFeatures);
     }
     
     private void updateScore( String name , int textID ) {
@@ -68,7 +92,7 @@ public class MainActivity extends Activity {
     			double score = results.computeScore();
     			double scoreB = resultsB.computeScore();
     					
-    			text.setText(String.format("%6.1f",100*(score/scoreB)));
+    			text.setText(String.format("%6.1f",100*(scoreB/score)));
     		}
     	}
     }
@@ -124,19 +148,43 @@ public class MainActivity extends Activity {
     }
     
     public void switchRunAllTests( View view ) {
-//    	Intent intent = new Intent(this, VisualDebugActivity.class);
-//    	startActivity(intent);
+    	Intent intent = new Intent(this, BenchmarkActivity.class);
+    	CentralMemory.setBenchmark(RunAllBenchmark.class);
+    	startActivity(intent);
     }
     
     public void onSubmitResults() {
+    	if( CentralMemory.storageResults.size() < 4 ) {
+    		Toast.makeText(this, "Run all tests before submitting!", Toast.LENGTH_SHORT).show();
+    		return;
+    	}
     	
+    	Intent i = new Intent(Intent.ACTION_SEND);
+    	i.setType("text/plain");
+    	i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"boofcv.benchmark@gmail.com"});
+    	i.putExtra(Intent.EXTRA_SUBJECT, "Boofcv Android Benchmark");
+    	i.putExtra(Intent.EXTRA_TEXT   , "See attachment");
+    	
+    	// put results in a location the e-mail program can access it
+    	codec.copyToExternal(RESULTS_NAME);
+    	
+    	String rawFolderPath = "file://"+getExternalFilesDir("")+"/"+RESULTS_NAME;
+    	Log.v(getClass().getSimpleName(), "Attachment URI "+Uri.parse(rawFolderPath ).toString());
+
+    	i.putExtra(Intent.EXTRA_STREAM, Uri.parse(rawFolderPath ));
+
+    	try {
+    	    startActivity(Intent.createChooser(i, "Submit results..."));
+    	} catch (android.content.ActivityNotFoundException ex) {
+    	    Toast.makeText(this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+    	}    	
     }
     
     /**
      * Copy results file to a location which can be accessed by mounting the phone as a hard disk
      */
     public void onCopyResultsFile() {
-		if (!codec.copyToExternal("local_results.txt")) {
+		if (!codec.copyToExternal(RESULTS_NAME)) {
 			AlertDialog dialog = new AlertDialog.Builder(this).create();
 			dialog.setTitle("Copy Failed!");
 			dialog.setButton("OK", new DialogInterface.OnClickListener() {
@@ -144,12 +192,7 @@ public class MainActivity extends Activity {
 			    } }); 
 			dialog.show();
 		} else {
-			AlertDialog dialog = new AlertDialog.Builder(this).create();
-			dialog.setTitle("Copied to /Android/data/boofcv.benchmark.android/files/");
-			dialog.setButton("OK", new DialogInterface.OnClickListener() {
-			      public void onClick(DialogInterface dialog, int which) {
-			    } }); 
-			dialog.show();
+			Toast.makeText(this, RESULTS_NAME+" to /Android/data/boofcv.benchmark.android/files/", Toast.LENGTH_SHORT).show();
 		}
     }
 }

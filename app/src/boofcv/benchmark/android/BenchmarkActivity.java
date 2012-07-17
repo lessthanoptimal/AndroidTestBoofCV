@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-// TODO on rotation the view and listener will change
+
 public class BenchmarkActivity extends Activity implements BenchmarkThread.Listener {
 	
     @Override
@@ -44,11 +44,11 @@ public class BenchmarkActivity extends Activity implements BenchmarkThread.Liste
         Button button = (Button) findViewById(R.id.buttonStart);
         
     	if( CentralMemory.isThreadRunning() ) {
-            pb.setEnabled(true);
+    		pb.setVisibility(View.VISIBLE);
             button.setText("Stop");
     		button.setTextColor(0xFFFF0000);
     	} else {
-    		pb.setEnabled(false);
+    		pb.setVisibility(View.INVISIBLE);
             button.setText("Start");
             button.setTextColor(0xFF000000);
     	}
