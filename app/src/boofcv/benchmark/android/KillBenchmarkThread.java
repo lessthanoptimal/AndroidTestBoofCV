@@ -31,13 +31,9 @@ public class KillBenchmarkThread extends Thread {
 		}
 
 		CentralMemory.isRunning = false;
-		CentralMemory.hasResults = false;
-		CentralMemory.text = "";
-		CentralMemory.benchmarkType = null;
-		CentralMemory.listener = null;
+		CentralMemory.reset();
 		
 		handler.post(new Runnable() {
-
 			@Override
 			public void run() {
 				dialog.dismiss();				

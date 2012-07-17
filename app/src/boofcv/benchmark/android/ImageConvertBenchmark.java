@@ -12,8 +12,14 @@ public class ImageConvertBenchmark extends BenchmarkThread {
 
 	private static final long serialVersionUID = 1L;
 	
+	public static final String NAME = "ImageConvert";
+	
 	Bitmap bitmap;
 	Bitmap bitmapOut;
+	
+	public ImageConvertBenchmark() {
+		super(NAME);
+	}
 	
 	@Override
 	public void configure( Resources resources ) {
@@ -40,7 +46,6 @@ public class ImageConvertBenchmark extends BenchmarkThread {
     	benchmarMultiU8(storage);
     	benchmarMultiF32(storage);
 
-    	publishText("Done\n");
     	finished();	
 	}
 

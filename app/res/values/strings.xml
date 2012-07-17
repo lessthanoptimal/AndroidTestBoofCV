@@ -1,14 +1,15 @@
 <resources>
 
-    <string name="app_name">BoofcvBenchmark</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Boofcv Benchmark</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="menu_copy">Copy Results File</string>
+    <string name="menu_submit">Submit Results</string>
+    <string name="title_activity_main">Test Selection</string>
     <string name="LowLevel">LowLevel</string>
     <string name="ImageIO">ImageIO</string>
     <string name="FeatureTracking">FeatureTracking</string>
-    <string name="title_activity_low_level">LowLevelActivity</string>
-    <string name="title_activity_visual_debug">VisualDebugActivity</string>
+    <string name="title_activity_low_level">Performance</string>
+    <string name="title_activity_visual_debug">Image Convert Visual</string>
     <string-array name="AndroidTypes">
         <item >8888</item>
         <item >565</item>

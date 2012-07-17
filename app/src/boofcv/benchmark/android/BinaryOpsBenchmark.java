@@ -14,9 +14,15 @@ import boofcv.struct.image.ImageUInt8;
 
 public class BinaryOpsBenchmark extends BenchmarkThread {
 
+	public static final String NAME = "BinaryOps";
+	
 	private static final long serialVersionUID = 1L;
 	
 	Bitmap bitmap;
+	
+	public BinaryOpsBenchmark() {
+		super(NAME);
+	}
 	
 	@Override
 	public void configure( Resources resources ) {
@@ -93,8 +99,8 @@ public class BinaryOpsBenchmark extends BenchmarkThread {
 	
 	@Override
 	public String getDescription() {
-		return "Computes a binary image by thresholding. The binary operators are then applied " +
-				"to the resulting image.  The number next to an operation refers to the connectivity rule.\n"+
+		return "Computes a binary image by thresholding. Binary operators are then applied " +
+				"to the resulting image.  The number next to an operation refers to the connectivity rule used.\n"+
 		        "\n"+
 		        "BoofCV Image Type\n"+
 		        "  U8 = ImageUInt8\n"+

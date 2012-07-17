@@ -32,11 +32,18 @@ public class FeatureBenchmark extends BenchmarkThread {
 	
 	private static final int NUM_DESCRIBE = 300;
 	
+	public static final String NAME = "Feature";
+	
 	Bitmap bitmap;
 	Bitmap bitmapLines;
 	InterestPointDetector detector;
 	DetectLineHoughPolar detectorLine;
 	DescribeRegionPoint describe;
+	
+	public FeatureBenchmark() {
+		super(NAME);
+	}
+
 	
 	@Override
 	public void configure( Resources resources ) {
@@ -64,7 +71,6 @@ public class FeatureBenchmark extends BenchmarkThread {
     	benchmark(ImageUInt8.class,"U8");
     	benchmark(ImageFloat32.class,"F32");
 
-    	publishText("Done\n");
     	finished();	
 	}
 	

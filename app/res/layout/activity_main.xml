@@ -36,11 +36,11 @@
             <Button
                 android:id="@+id/buttonConvert"
                 android:layout_weight="1"
-                android:text="Image Convert" 
-                android:onClick="switchImageConvert"/>
+                android:onClick="switchImageConvert"
+                android:text="Image Convert" />
 
             <TextView
-                android:id="@+id/textLowLevel"
+                android:id="@+id/textConvert"
                 android:layout_marginLeft="5dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
@@ -55,8 +55,8 @@
             <Button
                 android:id="@+id/buttonLowLevel"
                 android:layout_weight="1"
-                android:text="Low Level" 
-                android:onClick="switchLowLevel"/>
+                android:onClick="switchLowLevel"
+                android:text="Low Level" />
 
             <TextView
                 android:id="@+id/textLowLevel"
@@ -74,17 +74,17 @@
             <Button
                 android:id="@+id/buttonBinary"
                 android:layout_weight="1"
-                android:text="Binary" 
-                android:onClick="switchBinary"/>
+                android:onClick="switchBinary"
+                android:text="Binary" />
 
             <TextView
-                android:id="@+id/textTracking"
+                android:id="@+id/textBinary"
                 android:layout_marginLeft="5dp"
                 android:layout_weight="1"
                 android:gravity="center_horizontal"
                 android:text="Unknown" />
         </TableRow>
-        
+
         <TableRow
             android:id="@+id/tableRow4"
             android:layout_width="wrap_content"
@@ -93,8 +93,8 @@
             <Button
                 android:id="@+id/buttonFeatures"
                 android:layout_weight="1"
-                android:text="Features" 
-                android:onClick="switchFeatures"/>
+                android:onClick="switchFeatures"
+                android:text="Features" />
 
             <TextView
                 android:id="@+id/textFeatures"
@@ -103,7 +103,7 @@
                 android:gravity="center_horizontal"
                 android:text="Unknown" />
         </TableRow>
-        
+
         <TableRow
             android:id="@+id/tableRow5"
             android:layout_width="wrap_content"
@@ -112,8 +112,8 @@
             <Button
                 android:id="@+id/buttonVisualTest"
                 android:layout_weight="1"
-                android:text="Visual Test"
-                android:onClick="switchVisualTest"/>
+                android:onClick="switchVisualTest"
+                android:text="Visual Test" />
 
             <TextView
                 android:id="@+id/textVisualTest"
@@ -123,5 +123,14 @@
                 android:text="" />
         </TableRow>
     </TableLayout>
+
+    <Button
+        android:id="@+id/buttonRunAllTests"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tableLayout1"
+        android:layout_centerHorizontal="true"
+        android:text="Run All Tests" 
+        android:onClick="switchRunAllTests"/>
 
 </RelativeLayout>

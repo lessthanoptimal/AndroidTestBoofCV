@@ -8,9 +8,12 @@ import android.content.res.Resources;
 public abstract class BenchmarkThread extends Thread implements Serializable {
 	
 	long targetTime = 1000;
+	boolean interrupted = false;
+	BenchmarkResults resultsStorage = new BenchmarkResults();
 	
-	public BenchmarkThread() {
+	public BenchmarkThread( String benchmarkName ) {
 		setPriority(MAX_PRIORITY);
+		resultsStorage.name = benchmarkName;
 	}
 	
 	public abstract void configure( Resources resources);
@@ -27,6 +30,7 @@ public abstract class BenchmarkThread extends Thread implements Serializable {
 			Thread.sleep(1);
 		} catch (InterruptedException ex) {
 			Thread.currentThread().interrupt();
+			interrupted = true;
 			return;
 		}
 
@@ -63,10 +67,20 @@ public abstract class BenchmarkThread extends Thread implements Serializable {
 	
 	public void publishResults( final String benchmarkName , final double results ) {
 		CentralMemory.appendText(String.format("%22.22s | %6.1f\n",benchmarkName,results));
+		resultsStorage.addResult(benchmarkName, results);
 	}
 	
 	public void finished() {
 		CentralMemory.markFinished();
+		if( !interrupted ) {
+			resultsStorage.setText(CentralMemory.text);
+			CentralMemory.storageResults.put(resultsStorage.name, resultsStorage);
+			CentralMemory.storageUpdated = true;
+		}
+	}
+	
+	public boolean isInterrupted() {
+		return interrupted;
 	}
 	
 	public interface Listener {

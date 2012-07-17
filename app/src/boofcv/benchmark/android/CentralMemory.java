@@ -1,5 +1,8 @@
 package boofcv.benchmark.android;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import android.content.res.Resources;
 import android.os.Handler;
 import boofcv.benchmark.android.BenchmarkThread.Listener;
@@ -14,6 +17,10 @@ public class CentralMemory {
 	
 	public static volatile Handler handler;
 	public static volatile Listener listener;
+	
+	public static Map<String,BenchmarkResults> storageResults = new HashMap<String,BenchmarkResults>();
+	public static Map<String,BenchmarkResults> storageBaseLine = new HashMap<String,BenchmarkResults>();
+	public static boolean storageUpdated = false;
 	
 	public static void setBenchmark( Class type ) {
 		benchmarkType = type;
@@ -44,15 +51,22 @@ public class CentralMemory {
 	
 	public static void reset() {
 		hasResults = false;
-		text = "";
-		benchmarkType = null;
 		handler = null;
 		listener = null;
 	}
 	
 	public static void markFinished() {
-		appendText("\n\nFinished");
+		appendText("\nFinished");
 		isRunning = false;
+		
+		if (handler != null) {
+			handler.post(new Runnable() {
+				public void run() {
+					if( listener != null )
+						listener.benchmarkFinished();
+				}
+			});
+		}
 	}
 	
 	public static void updateActivity( Listener listener ) {

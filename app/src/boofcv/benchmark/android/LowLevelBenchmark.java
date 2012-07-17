@@ -22,9 +22,15 @@ public class LowLevelBenchmark extends BenchmarkThread {
 
 	private static final long serialVersionUID = 1L;
 	
+	public static final String NAME = "LowLevel";
+	
 	Bitmap bitmap;
 	BlurStorageFilter filter;
 	InterpolatePixel interp;
+	
+	public LowLevelBenchmark() {
+		super(NAME);
+	}
 	
 	@Override
 	public void configure( Resources resources) {
@@ -50,7 +56,6 @@ public class LowLevelBenchmark extends BenchmarkThread {
     	benchmark(ConvertBitmap.bitmapToGray(bitmap, (ImageUInt8)null),"U8");
     	benchmark(ConvertBitmap.bitmapToGray(bitmap, (ImageFloat32)null),"F32");
 
-    	publishText("Done\n");
     	finished();	
 	}
 	
