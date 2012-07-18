@@ -36,7 +36,13 @@ public class KillBenchmarkThread extends Thread {
 		handler.post(new Runnable() {
 			@Override
 			public void run() {
-				dialog.dismiss();				
+				try {
+					dialog.dismiss();	
+				} catch( Exception e ) {
+					// if the user tries to kill the benchmark then rotates the screen that causes
+					// a new view to be created and creates problems here.  Based on a search online
+					// the best fix seems to be to ignore the exception
+				}
 			}
 		});
 	}

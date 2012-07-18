@@ -1,4 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">onCopyResultsFileonCopyResultsFileonCopyResultsFile
+    <item android:id="@+id/menu_about"
+        android:title="@string/menu_about" 
+        android:orderInCategory="99"></item>
     <item android:id="@+id/menu_copy"
         android:title="@string/menu_copy" 
         android:orderInCategory="99"></item>

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
 import android.media.MediaScannerConnection;
 
 /**
@@ -34,6 +35,20 @@ public class BenchmarkResultsCodec {
 	public String resultsToString( Collection<BenchmarkResults> results ) {
 		StringBuffer buffer = new StringBuffer();
 		
+		// start by adding information about the device
+		
+		buffer.append("DeviceInfo 9\n");
+		buffer.append("BenchmarkVersion "+MainActivity.VERSION+"\n");
+		buffer.append("MODEL "+android.os.Build.MODEL+"\n");
+		buffer.append("BRAND "+android.os.Build.BRAND+"\n");
+		buffer.append("CPU_ABI "+android.os.Build.CPU_ABI+"\n");
+		buffer.append("DISPLAY "+android.os.Build.DISPLAY+"\n");
+		buffer.append("HARDWARE "+android.os.Build.HARDWARE+"\n");
+		buffer.append("MANUFACTURER "+android.os.Build.MANUFACTURER+"\n");
+		buffer.append("MODEL "+android.os.Build.MODEL+"\n");
+		buffer.append("VERSION.SDK_INT "+android.os.Build.VERSION.SDK_INT+"\n");
+		
+		// add the results
 		for( BenchmarkResults r : results ) {
 			buffer.append(String.format("%s %d\n",r.name,r.results.size()));
 			
@@ -106,20 +121,27 @@ public class BenchmarkResultsCodec {
 				if( s == null )
 					break;
 				String[] line = splitLine(s);
-				
+
 				BenchmarkResults r = new BenchmarkResults();
 				r.name = line[0];
-				
+
 				int N = Integer.parseInt(line[1]);
-				
-				for( int i = 0; i < N; i++ ) {
-					line = splitLine(fis.readLine());
-					double value = Double.parseDouble(line[0]);
-					
-					r.results.add( new BenchmarkResults.Pair(line[1], value));
+
+				if (r.name.compareTo("DeviceInfo") == 0) {
+					// skip over device info since it follows a slightly different format and will cause a crash
+					for (int i = 0; i < N; i++) {
+						fis.readLine();
+					}
+				} else {
+					for (int i = 0; i < N; i++) {
+						line = splitLine(fis.readLine());
+						double value = Double.parseDouble(line[0]);
+
+						r.results.add(new BenchmarkResults.Pair(line[1], value));
+					}
+					map.put(r.name, r);
 				}
-				
-				map.put(r.name,r);
+
 			}
 
 			fis.close();
