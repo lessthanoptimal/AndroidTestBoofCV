@@ -9,7 +9,6 @@ import java.util.Random;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.view.View;
 import boofcv.abst.feature.describe.DescribeRegionPoint;
 import boofcv.abst.feature.detect.edge.DetectEdgeContour;
 import boofcv.abst.feature.detect.extract.GeneralFeatureDetector;
@@ -194,7 +193,7 @@ public class FeatureBenchmark extends BenchmarkThread {
 	
 	@Override
 	public String getDescription() {
-		return "Runs different types of feature detectors (e.g. point, line, edge) on an image." +
+		return "Runs different types of feature detectors (e.g. point, line, edge) and descriptors on an image.  " +
 				"Some of these operations can be slow depending on your hardware.\n"+
 		        "\n"+
 		        "BoofCV Image Type\n"+

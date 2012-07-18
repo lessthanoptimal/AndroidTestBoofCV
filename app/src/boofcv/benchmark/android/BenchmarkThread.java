@@ -1,7 +1,6 @@
 package boofcv.benchmark.android;
 
 import java.io.Serializable;
-import java.util.Stack;
 
 import android.content.res.Resources;
 

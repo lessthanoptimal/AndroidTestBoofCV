@@ -15,7 +15,6 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.media.MediaScannerConnection;
 
 /**
