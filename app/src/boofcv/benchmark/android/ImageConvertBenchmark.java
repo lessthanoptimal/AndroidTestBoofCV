@@ -179,8 +179,8 @@ public class ImageConvertBenchmark extends BenchmarkThread {
 		        "\n"+
 		        "Android Bitmap accessor technique\n"+
 		        "  RGB = Using Bitmap.getPixel() and Bitmap.setPixel()\n"+
-		        "  Reflect = Using Java Reflection to access the private data array in Bitmap.\n"+
-		        "  Array = Using Bitmap.copyPixelsToBuffer().\n"+
+		        "  Array8 = byte array using Bitmap.copyPixelsToBuffer().\n"+
+		        "  Array32 = integer array using Bitmap.copyPixelsToBuffer().\n"+
 		        "\n"+
 		        "BoofCV Image Type\n"+
 		        "  U8 = ImageUInt8\n"+
