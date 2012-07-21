@@ -52,8 +52,8 @@ public class LowLevelBenchmark extends BenchmarkThread {
 	  	publishText(" Interpolate size = "+(bitmap.getWidth()/2)+" x "+(bitmap.getHeight()/2)+"\n");
 	  	publishText("\n");
 	  	
-    	benchmark(ConvertBitmap.bitmapToGray(bitmap, (ImageUInt8)null),"U8");
-    	benchmark(ConvertBitmap.bitmapToGray(bitmap, (ImageFloat32)null),"F32");
+    	benchmark(ConvertBitmap.bitmapToGray(bitmap, (ImageUInt8)null, null),"U8");
+    	benchmark(ConvertBitmap.bitmapToGray(bitmap, (ImageFloat32)null, null),"F32");
 
     	finished();	
 	}

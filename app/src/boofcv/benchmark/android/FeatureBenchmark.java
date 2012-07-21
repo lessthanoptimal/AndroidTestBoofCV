@@ -75,11 +75,11 @@ public class FeatureBenchmark extends BenchmarkThread {
 	
 	private <T extends ImageSingleBand> void benchmark( Class<T> imageType , String imageName ) {
 		
-		T imagePoint = ConvertBitmap.bitmapToGray(bitmap, null, imageType);
+		T imagePoint = ConvertBitmap.bitmapToGray(bitmap, null, imageType, null);
 		benchmarkPoints(imagePoint,imageName);
 		imagePoint = null;
 		
-		T imageLine = ConvertBitmap.bitmapToGray(bitmapLines, null, imageType);
+		T imageLine = ConvertBitmap.bitmapToGray(bitmapLines, null, imageType, null);
 		benchmarkLines(imageLine,imageName);
 		benchmarkContour(imageLine,imageName);
 		

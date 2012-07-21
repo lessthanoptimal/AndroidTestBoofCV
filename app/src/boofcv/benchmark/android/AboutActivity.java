@@ -17,7 +17,7 @@ public class AboutActivity extends Activity {
         
         String text =
         		"BoofCV: http://boofcv.org\n"+
-                "Benchmark Version: "+MainActivity.VERSION+"\n"+
+                "Benchmark Version: "+CentralMemory.APP_VERSION_NAME+"\n"+
         	    "\n"+
                 "- Higher scores are better.\n"+
         	    "- All times are in milliseconds.\n"+

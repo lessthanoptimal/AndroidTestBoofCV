@@ -1,7 +1,9 @@
 package boofcv.benchmark.android;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.View;
@@ -11,17 +13,22 @@ import android.widget.TextView;
 
 
 public class BenchmarkActivity extends Activity implements BenchmarkThread.Listener {
-	
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_benchmark);
 
+		
         ProgressBar pb = (ProgressBar) findViewById(R.id.progressBar1);
         pb.setVisibility(View.INVISIBLE);
         
         TextView textView = (TextView) findViewById(R.id.textViewResults);
         textView.setMovementMethod(new ScrollingMovementMethod());
+        // prevents the screen from going to sleep and slowing down the CPU
+        // Unlike the power manager approach no extra permission is required and I can't
+        // accidentially leave it on
+        textView.setKeepScreenOn(true);
         
 	   	if( CentralMemory.hasResults() ) {
 	   		CentralMemory.updateActivity(this);
@@ -34,6 +41,9 @@ public class BenchmarkActivity extends Activity implements BenchmarkThread.Liste
     @Override
     protected void onResume() {
     	super.onResume();
+    	
+    	// make sure it has full control over the CPU
+    	
     	if( CentralMemory.hasResults() ) {
 	   		CentralMemory.updateActivity(this);
 	   		TextView textView = (TextView) findViewById(R.id.textViewResults);
@@ -99,6 +109,5 @@ public class BenchmarkActivity extends Activity implements BenchmarkThread.Liste
 		TextView textView = (TextView) findViewById(R.id.textViewResults);
 		textView.setText(CentralMemory.text);
 	}
-
     
 }

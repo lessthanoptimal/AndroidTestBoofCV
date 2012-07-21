@@ -95,18 +95,18 @@ public class VisualDebugActivity extends Activity implements OnItemSelectedListe
 		
 		// convert into the correct boofcv type
 		if( selectedBoofcv <= 1 ) {
-			ConvertBitmap.bitmapToGray(input, (ImageSingleBand)middle, (Class)middle.getClass());
+			ConvertBitmap.bitmapToGray(input, (ImageSingleBand)middle, (Class)middle.getClass(), null);
 		} else {
 			MultiSpectral ms = (MultiSpectral)middle;
-			ConvertBitmap.bitmapToMS(input, ms, ms.getType());
+			ConvertBitmap.bitmapToMS(input, ms, ms.getType(), null);
 		}
 		
 		// convert it back into the android type
 		if( selectedBoofcv <= 1 ) {
-			ConvertBitmap.grayToBitmap((ImageSingleBand)middle, input);
+			ConvertBitmap.grayToBitmap((ImageSingleBand)middle, input,null);
 		} else {
 			MultiSpectral ms = (MultiSpectral)middle;
-			ConvertBitmap.multiToBitmap(ms,input);
+			ConvertBitmap.multiToBitmap(ms,input, null);
 		}
 		
 		// update the view

@@ -1,5 +1,8 @@
 package boofcv.benchmark.android;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +19,10 @@ public class ImageConvertBenchmark extends BenchmarkThread {
 	Bitmap bitmap;
 	Bitmap bitmapOut;
 	
+	int storage32[];
+	byte storage8[];
+	
+	
 	public ImageConvertBenchmark() {
 		super(NAME);
 	}
@@ -26,6 +33,9 @@ public class ImageConvertBenchmark extends BenchmarkThread {
 		options.inScaled = false;
 		
 	   	bitmap = BitmapFactory.decodeResource(resources,R.drawable.sundial01_left,options);
+	   	
+    	storage32 = new int[bitmap.getWidth()*bitmap.getHeight()];
+    	storage8 = new byte[bitmap.getWidth()*bitmap.getHeight()*4];
 	}
 	
 	@Override
@@ -38,118 +48,129 @@ public class ImageConvertBenchmark extends BenchmarkThread {
 	  	publishText(" Input size = "+bitmap.getWidth()+" x "+bitmap.getHeight()+"\n");
 	  	publishText("\n");
     	
-    	int storage[] = new int[bitmap.getWidth()*bitmap.getHeight()];
-    	
-    	benchmarkU8(storage);
-    	benchmarkF32(storage);
-    	benchmarMultiU8(storage);
-    	benchmarMultiF32(storage);
+	  	highLevelU8();
+    	benchmarkU8();
+    	benchmarkF32();
+    	benchmarMultiU8();
+    	benchmarMultiF32();
 
     	finished();	
 	}
 
-	private void benchmarkU8( final int[] storage) {
+	private void highLevelU8() {
+    	final ImageUInt8 gray = new ImageUInt8(bitmap.getWidth(),bitmap.getHeight());
+    	    	
+    	benchmark("User bToG null U8",new EvalPA() {
+			public void _process() {ConvertBitmap.bitmapToGray(bitmap,gray,null);}});
+    	benchmark("User bToG data U8",new EvalPA() {
+			public void _process() {ConvertBitmap.bitmapToGray(bitmap,gray,storage8);}});
+	}
+	
+	private void benchmarkU8() {
     	final ImageUInt8 gray = new ImageUInt8(bitmap.getWidth(),bitmap.getHeight());
 		
-    	benchmark("Array 8888 to U8",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToGrayArray(bitmap, gray,storage);}});
+    	bitmap.copyPixelsToBuffer(IntBuffer.wrap(storage32));
+    	bitmap.copyPixelsToBuffer(ByteBuffer.wrap(storage8));
+    	    	
+    	benchmark("Array32 8888 to U8",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToGray(storage32, Bitmap.Config.ARGB_8888,gray);}});
     	
-    	benchmark("Reflect 8888 to U8",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToGrayReflection(bitmap, gray);}});
+    	benchmark("Array8 8888 to U8",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToGray(storage8, Bitmap.Config.ARGB_8888,gray);}});
     	
     	benchmark("RGB 8888 to U8",new EvalPA() {
 			public void _process() {ImplConvertBitmap.bitmapToGrayRGB(bitmap, gray);}});
     	
     	bitmapOut = Bitmap.createBitmap(gray.width, gray.height, Bitmap.Config.ARGB_8888);
     	
-    	benchmark("Reflect U8 to 8888",new EvalPA() {
-			public void _process() {ImplConvertBitmap.grayToBitmapReflection(gray, bitmapOut);}});
+    	benchmark("Array8 U8 to 8888",new EvalPA() {
+			public void _process() {ImplConvertBitmap.grayToArray(gray, storage8, Bitmap.Config.ARGB_8888);}});
     	
     	benchmark("RGB U8 to 8888",new EvalPA() {
 			public void _process() {ImplConvertBitmap.grayToBitmapRGB(gray, bitmapOut);}});
     	
     	bitmapOut = Bitmap.createBitmap(gray.width, gray.height, Bitmap.Config.RGB_565);
 
-    	benchmark("Reflect U8 to 565",new EvalPA() {
-			public void _process() {ImplConvertBitmap.grayToBitmapReflection(gray, bitmapOut);}});
+    	benchmark("Array8 U8 to 565",new EvalPA() {
+			public void _process() {ImplConvertBitmap.grayToArray(gray, storage8, Bitmap.Config.RGB_565 );}});
 	}
 	
-	private void benchmarkF32( final int[] storage) {
+	private void benchmarkF32() {
     	final ImageFloat32 gray = new ImageFloat32(bitmap.getWidth(),bitmap.getHeight());
 		
-    	benchmark("Array 8888 to F32",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToGrayArray(bitmap, gray,storage);}});
+    	bitmap.copyPixelsToBuffer(IntBuffer.wrap(storage32));
+    	bitmap.copyPixelsToBuffer(ByteBuffer.wrap(storage8));	    	
     	
-    	benchmark("Reflect 8888 to F32",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToGrayReflection(bitmap, gray);}});
+    	benchmark("Array8 8888 to F32",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToGray(storage8, Bitmap.Config.ARGB_8888,gray);}});
     	
     	benchmark("RGB 8888 to F32",new EvalPA() {
 			public void _process() {ImplConvertBitmap.bitmapToGrayRGB(bitmap, gray);}});
     	
     	bitmapOut = Bitmap.createBitmap(gray.width, gray.height, Bitmap.Config.ARGB_8888);
     	
-    	benchmark("Reflect F32 to 8888",new EvalPA() {
-			public void _process() {ImplConvertBitmap.grayToBitmapReflection(gray, bitmapOut);}});
+    	benchmark("Array8 F32 to 8888",new EvalPA() {
+			public void _process() {ImplConvertBitmap.grayToArray(gray, storage8, Bitmap.Config.ARGB_8888);}});
     	
     	benchmark("RGB F32 to 8888",new EvalPA() {
 			public void _process() {ImplConvertBitmap.grayToBitmapRGB(gray, bitmapOut);}});
     	
     	bitmapOut = Bitmap.createBitmap(gray.width, gray.height, Bitmap.Config.RGB_565);
 
-    	benchmark("Reflect F32 to 565",new EvalPA() {
-			public void _process() {ImplConvertBitmap.grayToBitmapReflection(gray, bitmapOut);}});
+    	benchmark("Array8 F32 to 565",new EvalPA() {
+			public void _process() {ImplConvertBitmap.grayToArray(gray, storage8, Bitmap.Config.RGB_565 );}});
 	}
 	
-	private void benchmarMultiU8( final int[] storage) {
+	private void benchmarMultiU8() {
     	final MultiSpectral<ImageUInt8> color = new MultiSpectral<ImageUInt8>(ImageUInt8.class,bitmap.getWidth(),bitmap.getHeight(),4);
 		
-    	benchmark("Array 8888 to MU8",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToMultiArray_U8(bitmap, color,storage);}});
+    	benchmark("Array32 8888 to MU8",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToMulti_U8(storage32, Bitmap.Config.ARGB_8888,color);}});
     	
-    	benchmark("Reflect 8888 to MU8",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToMultiReflection_U8(bitmap, color);}});
+    	benchmark("Array8 8888 to MU8",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToMulti_U8(storage8, Bitmap.Config.ARGB_8888,color);}});
     	
     	benchmark("RGB 8888 to MU8",new EvalPA() {
 			public void _process() {ImplConvertBitmap.bitmapToMultiRGB_U8(bitmap, color);}});
     	
     	bitmapOut = Bitmap.createBitmap(color.width, color.height, Bitmap.Config.ARGB_8888);
     	
-    	benchmark("Reflect MU8 to 8888",new EvalPA() {
-			public void _process() {ImplConvertBitmap.multiToBitmapReflection_U8(color, bitmapOut);}});
+    	benchmark("Array8 MU8 to 8888",new EvalPA() {
+			public void _process() {ImplConvertBitmap.multiToArray_U8(color,storage8, Bitmap.Config.ARGB_8888);}});
     	
     	benchmark("RGB MU8 to 8888",new EvalPA() {
 			public void _process() {ImplConvertBitmap.multiToBitmapRGB_U8(color, bitmapOut);}});
     	
     	bitmapOut = Bitmap.createBitmap(color.width, color.height, Bitmap.Config.RGB_565);
 
-    	benchmark("Reflect MU8 to 565",new EvalPA() {
-			public void _process() {ImplConvertBitmap.multiToBitmapReflection_U8(color, bitmapOut);}});
+    	benchmark("Array8 MU8 to 565",new EvalPA() {
+			public void _process() {ImplConvertBitmap.multiToArray_U8(color, storage8, Bitmap.Config.RGB_565 );}});
 	}
 	
-	private void benchmarMultiF32( final int[] storage) {
+	private void benchmarMultiF32() {
     	final MultiSpectral<ImageFloat32> color = new MultiSpectral<ImageFloat32>(ImageFloat32.class,bitmap.getWidth(),bitmap.getHeight(),4);
 		
-    	benchmark("Array 8888 to MF32",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToMultiArray_F32(bitmap, color,storage);}});
+    	benchmark("Array32 8888 to MF32",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToMulti_F32(storage32, Bitmap.Config.ARGB_8888,color);}});
     	
-    	benchmark("Reflect 8888 to MF32",new EvalPA() {
-			public void _process() {ImplConvertBitmap.bitmapToMultiReflection_F32(bitmap, color);}});
+    	benchmark("Array8 8888 to MF32",new EvalPA() {
+			public void _process() {ImplConvertBitmap.arrayToMulti_F32(storage8, Bitmap.Config.ARGB_8888,color);}});
     	
     	benchmark("RGB 8888 to MF32",new EvalPA() {
 			public void _process() {ImplConvertBitmap.bitmapToMultiRGB_F32(bitmap, color);}});
     	
     	bitmapOut = Bitmap.createBitmap(color.width, color.height, Bitmap.Config.ARGB_8888);
     	
-    	benchmark("Reflect MF32 to 8888",new EvalPA() {
-			public void _process() {ImplConvertBitmap.multiToBitmapReflection_F32(color, bitmapOut);}});
+    	benchmark("Array8 MF32 to 8888",new EvalPA() {
+			public void _process() {ImplConvertBitmap.multiToArray_F32(color,storage8, Bitmap.Config.ARGB_8888);}});
     	
     	benchmark("RGB MF32 to 8888",new EvalPA() {
 			public void _process() {ImplConvertBitmap.multiToBitmapRGB_F32(color, bitmapOut);}});
     	
     	bitmapOut = Bitmap.createBitmap(color.width, color.height, Bitmap.Config.RGB_565);
 
-    	benchmark("Reflect MF32 to 565",new EvalPA() {
-			public void _process() {ImplConvertBitmap.multiToBitmapReflection_F32(color, bitmapOut);}});
+    	benchmark("Array8 MF32 to 565",new EvalPA() {
+			public void _process() {ImplConvertBitmap.multiToArray_F32(color, storage8, Bitmap.Config.RGB_565 );}});
 	}
 
 	@Override

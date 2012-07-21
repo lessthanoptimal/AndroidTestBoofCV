@@ -8,6 +8,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +21,6 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	public static final String VERSION = "1";
 	public static final String WHICH_MESSAGE = "WhichBenchmark";
 	public static final String RESULTS_NAME = "results.txt";
 	
@@ -49,6 +50,18 @@ public class MainActivity extends Activity {
         } else {
         	refreshScoreDisplay();
         }
+        
+        // get the app version
+		try {
+			PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+			CentralMemory.APP_VERSION_CODE = pInfo.versionCode;
+			CentralMemory.APP_VERSION_NAME = pInfo.versionName;
+		} catch (NameNotFoundException e) {
+			CentralMemory.APP_VERSION_CODE  = -1;
+			CentralMemory.APP_VERSION_NAME = "Unknown";
+		}
+       
+
     }
     
     @Override

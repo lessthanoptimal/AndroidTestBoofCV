@@ -37,7 +37,7 @@ public class BenchmarkResultsCodec {
 		// start by adding information about the device
 		
 		buffer.append("DeviceInfo 9\n");
-		buffer.append("BenchmarkVersion "+MainActivity.VERSION+"\n");
+		buffer.append("AppVersionCode "+CentralMemory.APP_VERSION_CODE+"\n");
 		buffer.append("MODEL "+android.os.Build.MODEL+"\n");
 		buffer.append("BRAND "+android.os.Build.BRAND+"\n");
 		buffer.append("CPU_ABI "+android.os.Build.CPU_ABI+"\n");

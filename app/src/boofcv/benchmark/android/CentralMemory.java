@@ -9,6 +9,8 @@ import boofcv.benchmark.android.BenchmarkThread.Listener;
 
 public class CentralMemory {
 
+	public static int APP_VERSION_CODE;
+	public static String APP_VERSION_NAME;
 	public static Class<BenchmarkThread> benchmarkType;
 	public static volatile BenchmarkThread thread;
 	public static volatile String text;

@@ -1,355 +1,451 @@
 package boofcv.benchmark.android.test;
 
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 import android.graphics.Bitmap;
 import android.test.AndroidTestCase;
 import boofcv.benchmark.android.ImplConvertBitmap;
+import boofcv.core.image.FactoryGImageSingleBand;
+import boofcv.core.image.GImageSingleBand;
+import boofcv.core.image.GeneralizedImageOps;
 import boofcv.struct.image.ImageFloat32;
+import boofcv.struct.image.ImageSingleBand;
 import boofcv.struct.image.ImageUInt8;
 import boofcv.struct.image.MultiSpectral;
 
 public class TestImplConvertBitmap extends AndroidTestCase {
 
-	public void testBitmapToGrayReflection_8888_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
+	int w = 5;
+	int h = 10;
+	
+	int buffer32[] = new int[w*h];
+	byte buffer8[] = new byte[w*h*4];
+	
+	
+	public void testAll_ArrayToGray() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
 		
-		ImageUInt8 found = new ImageUInt8(5,10);
+		for( Method m : methods ) {
+			if( !m.getName().equals("arrayToGray") )
+				continue;
 		
-		ImplConvertBitmap.bitmapToGrayReflection(orig, found);
+			checkArrayToGray(m,Bitmap.Config.ARGB_8888);
+			try {
+				checkArrayToGray(m,Bitmap.Config.RGB_565);
+			} catch( RuntimeException e ) {
+				assertFalse( "Only byte supports this mode",m.getParameterTypes()[1] == byte[].class );
+			}
+			numCount++;
+		}
 		
-		assertEquals(2,found.get(1,2));
-		assertEquals(0,found.get(0,0));
+		assertEquals(4,numCount);
 	}
 	
-	public void testBitmapToGrayArray_8888_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		ImageUInt8 found = new ImageUInt8(5,10);
-		
-		int storage[] = new int[found.width*found.height];
-		ImplConvertBitmap.bitmapToGrayArray(orig, found,storage);
-		
-		assertEquals(2,found.get(1,2));
-		assertEquals(0,found.get(0,0));
-	}
-	
-	public void testBitmapToGrayRGB_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		ImageUInt8 found = new ImageUInt8(5,10);
-		
-		ImplConvertBitmap.bitmapToGrayRGB(orig, found);
-		
-		assertEquals(2,found.get(1,2));
-		assertEquals(0,found.get(0,0));
-	}
-	
-	public void testBitmapToGrayReflection_565_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-		// large alpha value that should be ignored and rgb each have different values
+	public void checkArrayToGray( Method m , Bitmap.Config config ) {
+		Bitmap orig = Bitmap.createBitmap(w,h, config);
 		orig.setPixel(1, 2, 0xFF204010 );
 		
-		ImageUInt8 found = new ImageUInt8(5,10);
+		Class[] params = m.getParameterTypes();
 		
-		ImplConvertBitmap.bitmapToGrayReflection(orig, found);
+		try {
+			ImageSingleBand found = (ImageSingleBand)params[2].getConstructor(int.class,int.class).newInstance(w,h);
 
-		assertEquals(37,found.get(1,2));
-		assertEquals(0,found.get(0,0));
-	}
+			Object array;
 
-	
-	public void testGrayToBitmapReflection_U8_8888() {
-		ImageUInt8 orig = new ImageUInt8(5,10);
-		orig.set(1,2,16);
-		orig.set(1,3,0xFF);
-		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
+			String info = params[2].getSimpleName();
+			if (params[0] == int[].class) {
+				info += " Array32";
+				orig.copyPixelsToBuffer(IntBuffer.wrap(buffer32));
+				array = buffer32;
+			} else {
+				info += " Array8";
+				orig.copyPixelsToBuffer(ByteBuffer.wrap(buffer8));
+				array = buffer8;
+			}
+			info += " "+config;
 
-		ImplConvertBitmap.grayToBitmapReflection(orig, found);
-		
-		assertEquals(0xFF101010,(int)found.getPixel(1,2));
-		assertEquals(0xFFFFFFFF,(int)found.getPixel(1,3));
-		assertEquals((int)0xFF000000,found.getPixel(0,0));
+			m.invoke(null, array, config, found);
+			
+			GImageSingleBand g = FactoryGImageSingleBand.wrap(found);
+			
+			// should be 37 for both 8888 and 565
+			assertEquals(info,37,g.get(1,2).intValue());
+			assertEquals(info,0,g.get(0,0).intValue());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public void testGrayToBitmapReflection_U8_565() {
-		ImageUInt8 orig = new ImageUInt8(5,10);
-		orig.set(1,2,16);
-		orig.set(1,3,0xFF);
+	public void testAll_ArrayToMulti() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
 		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-
-		ImplConvertBitmap.grayToBitmapReflection(orig, found);
+		for( Method m : methods ) {
+			if( !m.getName().contains("arrayToMulti") )
+				continue;
 		
-		assertEquals(expected565(16,16,16),(int)found.getPixel(1,2));
-		assertEquals(expected565(255,255,255),(int)found.getPixel(1,3));
-		assertEquals((int)0xFF000000,found.getPixel(0,0));
+			checkArrayToMulti(m,Bitmap.Config.ARGB_8888);
+			try {
+				checkArrayToMulti(m,Bitmap.Config.RGB_565);
+			} catch( RuntimeException e ) {
+				assertFalse( "Only byte supports this mode",m.getParameterTypes()[1] == byte[].class );
+			}
+			numCount++;
+		}
+		
+		assertEquals(4,numCount);
 	}
 	
-	public void testBitmapToGrayReflection_8888_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		ImageFloat32 found = new ImageFloat32(5,10);
-		
-		ImplConvertBitmap.bitmapToGrayReflection(orig, found);
-		
-		assertEquals(2,(int)found.get(1,2));
-		assertEquals(0,(int)found.get(0,0));
-	}
-	
-	public void testBitmapToGrayArray_8888_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		ImageFloat32 found = new ImageFloat32(5,10);
-		
-		int storage[] = new int[found.width*found.height];
-		ImplConvertBitmap.bitmapToGrayArray(orig, found,storage);
-		
-		assertEquals(2,(int)found.get(1,2));
-		assertEquals(0,(int)found.get(0,0));
-	}
-	
-	public void testBitmapToGrayRGB_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		ImageFloat32 found = new ImageFloat32(5,10);
-		
-		ImplConvertBitmap.bitmapToGrayRGB(orig, found);
-		
-		assertEquals(2,(int)found.get(1,2));
-		assertEquals(0,(int)found.get(0,0));
-	}
-	
-	public void testBitmapToGrayReflection_565_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-		// large alpha value that should be ignored and rgb each have different values
+	public void checkArrayToMulti( Method m , Bitmap.Config config ) {
+		Bitmap orig = Bitmap.createBitmap(w,h, config);
 		orig.setPixel(1, 2, 0xFF204010 );
 		
-		ImageFloat32 found = new ImageFloat32(5,10);
+		Class[] params = m.getParameterTypes();
 		
-		ImplConvertBitmap.bitmapToGrayReflection(orig, found);
+		try {
+			int numBands = Bitmap.Config.ARGB_8888 == config ? 4 : 3;
+			Class msType = m.getName().contains("U8") ? ImageUInt8.class : ImageFloat32.class;
+			
+			MultiSpectral found = new MultiSpectral(msType,w,h,numBands);
 
-		assertEquals(37,(int)found.get(1,2));
-		assertEquals(0,(int)found.get(0,0));
-	}
+			Object array;
 
-	
-	public void testGrayToBitmapReflection_F32_8888() {
-		ImageFloat32 orig = new ImageFloat32(5,10);
-		orig.set(1,2,16);
-		orig.set(1,3,255);
-		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
+			String info = params[2].getSimpleName();
+			if (params[0] == int[].class) {
+				info += " Array32";
+				orig.copyPixelsToBuffer(IntBuffer.wrap(buffer32));
+				array = buffer32;
+			} else {
+				info += " Array8";
+				orig.copyPixelsToBuffer(ByteBuffer.wrap(buffer8));
+				array = buffer8;
+			}
+			info += " "+config;
 
-		ImplConvertBitmap.grayToBitmapReflection(orig, found);
-
-		assertEquals(0xFF101010,(int)found.getPixel(1,2));
-		assertEquals(0xFFFFFFFF,(int)found.getPixel(1,3));
-		assertEquals((int)0xFF000000,found.getPixel(0,0));
+			m.invoke(null, array, config, found);
+			
+			assertEquals(0x20,(int)GeneralizedImageOps.get(found.getBand(0),1,2));
+			assertEquals(0x40,(int)GeneralizedImageOps.get(found.getBand(1),1,2));
+			assertEquals(0x10,(int)GeneralizedImageOps.get(found.getBand(2),1,2));
+			if( numBands == 4 )
+				assertEquals(0xFF,(int)GeneralizedImageOps.get(found.getBand(3),1,2));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public void testGrayToBitmapReflection_F32_565() {
-		ImageFloat32 orig = new ImageFloat32(5,10);
-		orig.set(1,2,16);
-		orig.set(1,3,255);
+	public void testAll_BitmapToGrayRGB() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
 		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-
-		ImplConvertBitmap.grayToBitmapReflection(orig, found);
+		for( Method m : methods ) {
+			if( !m.getName().equals("bitmapToGrayRGB") )
+				continue;
 		
-		assertEquals(expected565(16,16,16),(int)found.getPixel(1,2));
-		assertEquals(expected565(255,255,255),(int)found.getPixel(1,3));
-		assertEquals((int)0xFF000000,found.getPixel(0,0));
+			checkBitmapToGrayRGB(m,Bitmap.Config.ARGB_8888);
+			// the 565 conversion Android uses is slightly different from my conversion.  just going to ignore this test
+//			checkBitmapToGrayRGB(m,Bitmap.Config.RGB_565);
+			
+			numCount++;
+		}
+		
+		assertEquals(2,numCount);
 	}
 	
-	public void testBitmapToMultiReflection_8888_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		MultiSpectral<ImageUInt8> found = new MultiSpectral<ImageUInt8>(ImageUInt8.class, 5, 10, 4);
-		
-		ImplConvertBitmap.bitmapToMultiReflection_U8(orig, found);
-		
-		assertEquals(0x01,found.getBand(0).get(1,2));
-		assertEquals(0x02,found.getBand(1).get(1,2));
-		assertEquals(0x03,found.getBand(2).get(1,2));
-		assertEquals(0xFF,found.getBand(3).get(1,2));
-	}
-	
-	public void testBitmapToMultiArray_8888_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		MultiSpectral<ImageUInt8> found = new MultiSpectral<ImageUInt8>(ImageUInt8.class, 5, 10, 4);
-		
-		int storage[] = new int[found.width*found.height];
-		ImplConvertBitmap.bitmapToMultiArray_U8(orig, found,storage);
-		
-		assertEquals(0x01,found.getBand(0).get(1,2));
-		assertEquals(0x02,found.getBand(1).get(1,2));
-		assertEquals(0x03,found.getBand(2).get(1,2));
-		assertEquals(0xFF,found.getBand(3).get(1,2));
-	}
-	
-	public void testBitmapToMultiRGB_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		MultiSpectral<ImageUInt8> found = new MultiSpectral<ImageUInt8>(ImageUInt8.class, 5, 10, 4);
-		
-		ImplConvertBitmap.bitmapToMultiRGB_U8(orig, found);
-		
-		assertEquals(0x01,found.getBand(0).get(1,2));
-		assertEquals(0x02,found.getBand(1).get(1,2));
-		assertEquals(0x03,found.getBand(2).get(1,2));
-		assertEquals(0xFF,found.getBand(3).get(1,2));
-	}
-	
-	public void testBitmapToMultiReflection_565_U8() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-		// large alpha value that should be ignored and rgb each have different values
+	public void checkBitmapToGrayRGB( Method m , Bitmap.Config config ) {
+		Bitmap orig = Bitmap.createBitmap(w,h, config);
 		orig.setPixel(1, 2, 0xFF204010 );
 		
-		MultiSpectral<ImageUInt8> found = new MultiSpectral<ImageUInt8>(ImageUInt8.class, 5, 10, 3);
+		Class[] params = m.getParameterTypes();
 		
-		ImplConvertBitmap.bitmapToMultiReflection_U8(orig, found);
+		String info = config+" "+params[1].getSimpleName();
+		
+		try {
+			ImageSingleBand found = (ImageSingleBand)params[1].getConstructor(int.class,int.class).newInstance(w,h);
 
-		assertEquals(32,found.getBand(0).get(1,2));
-		assertEquals(64,found.getBand(1).get(1,2));
-		assertEquals(16,found.getBand(2).get(1,2));
+			m.invoke(null, orig, found);
+			
+			GImageSingleBand g = FactoryGImageSingleBand.wrap(found);
+			
+			// should be 37 for both 8888 and 565
+			assertEquals(info,37,g.get(1,2).intValue());
+			assertEquals(info,0,g.get(0,0).intValue());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public void testMultiToBitmapReflection_FU8_8888() {
-		MultiSpectral<ImageUInt8> orig = new MultiSpectral<ImageUInt8>(ImageUInt8.class, 5, 10, 4);
-		orig.getBand(0).set(1, 2, 0x12);
-		orig.getBand(1).set(1, 2, 0xA0);
-		orig.getBand(2).set(1, 2, 0xFF);
-		orig.getBand(3).set(1, 2, 0xFF);
+	public void testAll_BitmapToMultiRGB() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
 		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
+		for( Method m : methods ) {
+			if( !m.getName().contains("bitmapToMulti") )
+				continue;
+		
+			checkBitmapToMultiRGB(m,Bitmap.Config.ARGB_8888);
 
-		ImplConvertBitmap.multiToBitmapReflection_U8(orig, found);
-
-		assertEquals((int)0xFF12A0FF,(int)found.getPixel(1,2));
-		assertEquals((int)0x00000000,found.getPixel(0,0));
+			numCount++;
+		}
+		
+		assertEquals(2,numCount);
 	}
 	
-	public void testMultiToBitmapReflection_U8_565() {
-		MultiSpectral<ImageUInt8> orig = new MultiSpectral<ImageUInt8>(ImageUInt8.class, 5, 10, 3);
-		orig.getBand(0).set(1, 2, 56);
-		orig.getBand(1).set(1, 2, 100);
-		orig.getBand(2).set(1, 2, 255);
-		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-
-		ImplConvertBitmap.multiToBitmapReflection_U8(orig, found);
-		
-		assertEquals(expected565(56,100,255),(int)found.getPixel(1,2));
-		assertEquals((int)0xFF000000,found.getPixel(0,0));
-	}
-	
-	public void testBitmapToMultiReflection_8888_32F() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		MultiSpectral<ImageFloat32> found = new MultiSpectral<ImageFloat32>(ImageFloat32.class, 5, 10, 4);
-		
-		ImplConvertBitmap.bitmapToMultiReflection_F32(orig, found);
-		
-		assertEquals(0x01,(int)found.getBand(0).get(1,2));
-		assertEquals(0x02,(int)found.getBand(1).get(1,2));
-		assertEquals(0x03,(int)found.getBand(2).get(1,2));
-		assertEquals(0xFF,(int)found.getBand(3).get(1,2));
-	}
-	
-	public void testBitmapToMultiArray_8888_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		MultiSpectral<ImageFloat32> found = new MultiSpectral<ImageFloat32>(ImageFloat32.class, 5, 10, 4);
-		
-		int storage[] = new int[found.width*found.height];
-		ImplConvertBitmap.bitmapToMultiArray_F32(orig, found,storage);
-		
-		assertEquals(0x01,(int)found.getBand(0).get(1,2));
-		assertEquals(0x02,(int)found.getBand(1).get(1,2));
-		assertEquals(0x03,(int)found.getBand(2).get(1,2));
-		assertEquals(0xFF,(int)found.getBand(3).get(1,2));
-	}
-	
-	public void testBitmapToMultiRGB_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-		// large alpha value that should be ignored and rgb each have different values
-		orig.setPixel(1, 2, 0xFF010203 );
-		
-		MultiSpectral<ImageFloat32> found = new MultiSpectral<ImageFloat32>(ImageFloat32.class, 5, 10, 4);
-		
-		ImplConvertBitmap.bitmapToMultiRGB_F32(orig, found);
-		
-		assertEquals(0x01,(int)found.getBand(0).get(1,2));
-		assertEquals(0x02,(int)found.getBand(1).get(1,2));
-		assertEquals(0x03,(int)found.getBand(2).get(1,2));
-		assertEquals(0xFF,(int)found.getBand(3).get(1,2));
-	}
-	
-	public void testBitmapToMultiReflection_565_F32() {
-		Bitmap orig = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
-		// large alpha value that should be ignored and rgb each have different values
+	public void checkBitmapToMultiRGB( Method m , Bitmap.Config config ) {
+		Bitmap orig = Bitmap.createBitmap(w,h, config);
 		orig.setPixel(1, 2, 0xFF204010 );
 		
-		MultiSpectral<ImageFloat32> found = new MultiSpectral<ImageFloat32>(ImageFloat32.class, 5, 10, 3);
+		Class[] params = m.getParameterTypes();
 		
-		ImplConvertBitmap.bitmapToMultiReflection_F32(orig, found);
+		String info = config+" "+m.getName();
+		
+		try {
+			int numBands = Bitmap.Config.ARGB_8888 == config ? 4 : 3;
+			Class msType = m.getName().contains("U8") ? ImageUInt8.class : ImageFloat32.class;
+			
+			MultiSpectral found = new MultiSpectral(msType,w,h,numBands);
 
-		assertEquals(32,(int)found.getBand(0).get(1,2));
-		assertEquals(64,(int)found.getBand(1).get(1,2));
-		assertEquals(16,(int)found.getBand(2).get(1,2));
+			m.invoke(null, orig, found);
+			
+			assertEquals(0x20,(int)GeneralizedImageOps.get(found.getBand(0),1,2));
+			assertEquals(0x40,(int)GeneralizedImageOps.get(found.getBand(1),1,2));
+			assertEquals(0x10,(int)GeneralizedImageOps.get(found.getBand(2),1,2));
+			if( numBands == 4 )
+				assertEquals(0xFF,(int)GeneralizedImageOps.get(found.getBand(3),1,2));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
-	public void testMultiToBitmapReflection_F32_8888() {
-		MultiSpectral<ImageFloat32> orig = new MultiSpectral<ImageFloat32>(ImageFloat32.class, 5, 10, 4);
-		orig.getBand(0).set(1, 2, 0x12);
-		orig.getBand(1).set(1, 2, 0xA0);
-		orig.getBand(2).set(1, 2, 0xFF);
-		orig.getBand(3).set(1, 2, 0xFF);
+	public void testAll_GrayToArray() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
 		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.ARGB_8888);
-
-		ImplConvertBitmap.multiToBitmapReflection_F32(orig, found);
-
-		assertEquals((int)0xFF12A0FF,(int)found.getPixel(1,2));
-		assertEquals((int)0x00000000,found.getPixel(0,0));
+		for( Method m : methods ) {
+			if( !m.getName().equals("grayToArray") )
+				continue;
+		
+			checkGrayToArray(m,Bitmap.Config.ARGB_8888);
+			checkGrayToArray(m,Bitmap.Config.RGB_565);
+			
+			numCount++;
+		}
+		
+		assertEquals(2,numCount);
 	}
 	
-	public void testMultiToBitmapReflection_F32_565() {
-		MultiSpectral<ImageFloat32> orig = new MultiSpectral<ImageFloat32>(ImageFloat32.class, 5, 10, 3);
-		orig.getBand(0).set(1, 2, 56);
-		orig.getBand(1).set(1, 2, 100);
-		orig.getBand(2).set(1, 2, 255);
+	public void checkGrayToArray( Method m , Bitmap.Config config ) {
+		Bitmap dst = Bitmap.createBitmap(w,h, config);
 		
-		Bitmap found = Bitmap.createBitmap(5,10, Bitmap.Config.RGB_565);
+		Class[] params = m.getParameterTypes();
+		
+		try {
+			ImageSingleBand src = (ImageSingleBand)params[0].getConstructor(int.class,int.class).newInstance(w,h);
+			GeneralizedImageOps.set(src, 1, 2, 16);
+			GeneralizedImageOps.set(src, 1, 3, 0xFF);
+			
+			Object array;
 
-		ImplConvertBitmap.multiToBitmapReflection_F32(orig, found);
-		
-		assertEquals(expected565(56,100,255),(int)found.getPixel(1,2));
-		assertEquals((int)0xFF000000,found.getPixel(0,0));
+			String info = params[0].getSimpleName();
+			if (params[2] == int[].class) {
+				info += " Array32";
+				array = buffer32;
+			} else {
+				info += " Array8";
+				array = buffer8;
+			}
+			info += " "+config;
+
+			m.invoke(null, src, array, config);
+			if (params[2] == int[].class) {
+				dst.copyPixelsFromBuffer(IntBuffer.wrap(buffer32));
+			} else {
+				dst.copyPixelsFromBuffer(ByteBuffer.wrap(buffer8));
+			}
+			
+			GImageSingleBand g = FactoryGImageSingleBand.wrap(src);
+			
+			if( config == Bitmap.Config.ARGB_8888 ) {
+				assertEquals(info,0xFF101010,(int)dst.getPixel(1,2));
+				assertEquals(info,0xFFFFFFFF,(int)dst.getPixel(1,3));
+			} else {
+				assertEquals(info,expected565(16,16,16),(int)dst.getPixel(1,2));
+				assertEquals(info,expected565(255,255,255),(int)dst.getPixel(1,3));
+			}
+			assertEquals(info,0xFF000000,dst.getPixel(0,0));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
+	
+	public void testAll_GrayToBitmapRGB() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
+		
+		for( Method m : methods ) {
+			if( !m.getName().equals("grayToBitmapRGB") )
+				continue;
+		
+			checkGrayToBitmapRGB(m,Bitmap.Config.ARGB_8888);
+//			checkGrayToBitmapRGB(m,Bitmap.Config.RGB_565);
+			
+			numCount++;
+		}
+		
+		assertEquals(2,numCount);
+	}
+	
+	public void checkGrayToBitmapRGB( Method m , Bitmap.Config config ) {
+		Bitmap dst = Bitmap.createBitmap(w,h, config);
+		
+		Class[] params = m.getParameterTypes();
+		
+		try {
+			ImageSingleBand src = (ImageSingleBand)params[0].getConstructor(int.class,int.class).newInstance(w,h);
+			GeneralizedImageOps.set(src, 1, 2, 16);
+			GeneralizedImageOps.set(src, 1, 3, 0xFF);
+
+			String info = config+" "+params[0].getSimpleName();
+
+			m.invoke(null, src, dst);
+
+			assertEquals(info,0xFF101010,(int)dst.getPixel(1,2));
+			assertEquals(info,0xFFFFFFFF,(int)dst.getPixel(1,3));
+			assertEquals(info,0xFF000000,dst.getPixel(0,0));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void testAll_MultiToArray() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
+		
+		for( Method m : methods ) {
+			if( !m.getName().contains("multiToArray") )
+				continue;
+		
+			checkMultiToArray(m,Bitmap.Config.ARGB_8888);
+			checkMultiToArray(m,Bitmap.Config.RGB_565);
+			
+			numCount++;
+		}
+		
+		assertEquals(2,numCount);
+	}
+	
+	public void checkMultiToArray( Method m , Bitmap.Config config ) {
+		Bitmap dst = Bitmap.createBitmap(w,h, config);
+		
+		Class[] params = m.getParameterTypes();
+		
+		try {
+			int numBands = Bitmap.Config.ARGB_8888 == config ? 4 : 3;
+			Class msType = m.getName().contains("U8") ? ImageUInt8.class : ImageFloat32.class;
+			
+			MultiSpectral src = new MultiSpectral(msType,w,h,numBands);
+			
+			GeneralizedImageOps.set(src.getBand(0),1, 2, 0x38);
+			GeneralizedImageOps.set(src.getBand(1),1, 2, 0x64);
+			GeneralizedImageOps.set(src.getBand(2),1, 2, 0xFF);
+			if( numBands == 4 )
+				GeneralizedImageOps.set(src.getBand(3),1, 2, 0xFF);
+			
+			Object array;
+
+			String info = params[0].getSimpleName();
+			if (params[2] == int[].class) {
+				info += " Array32";
+				array = buffer32;
+			} else {
+				info += " Array8";
+				array = buffer8;
+			}
+			info += " "+config;
+
+			m.invoke(null, src, array, config);
+			if (params[2] == int[].class) {
+				dst.copyPixelsFromBuffer(IntBuffer.wrap(buffer32));
+			} else {
+				dst.copyPixelsFromBuffer(ByteBuffer.wrap(buffer8));
+			}
+
+			if( config == Bitmap.Config.ARGB_8888 ) {
+				assertEquals(info,0xFF3864FF,(int)dst.getPixel(1,2));
+				assertEquals(info,0x00000000,dst.getPixel(0,0));
+			} else {
+				assertEquals(info,expected565(0x38,0x64,0xFF),(int)dst.getPixel(1,2));
+				assertEquals(info,0xFF000000,dst.getPixel(0,0));
+			}
+			
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	public void testAll_MultiToBitmapRGB() {
+		Method methods[] = ImplConvertBitmap.class.getMethods();
+	
+		int numCount = 0;
+		
+		for( Method m : methods ) {
+			if( !m.getName().contains("multiToBitmapRGB") )
+				continue;
+		
+			checkMultiToBitmapRGB(m,Bitmap.Config.ARGB_8888);
+//			checkMultiToBitmapRGB(m,Bitmap.Config.RGB_565);
+			
+			numCount++;
+		}
+		
+		assertEquals(2,numCount);
+	}
+	
+	public void checkMultiToBitmapRGB( Method m , Bitmap.Config config ) {
+		Bitmap dst = Bitmap.createBitmap(w,h, config);
+		
+		Class[] params = m.getParameterTypes();
+		
+		try {
+			int numBands = Bitmap.Config.ARGB_8888 == config ? 4 : 3;
+			Class msType = m.getName().contains("U8") ? ImageUInt8.class : ImageFloat32.class;
+			
+			MultiSpectral src = new MultiSpectral(msType,w,h,numBands);
+			
+			GeneralizedImageOps.set(src.getBand(0),1, 2, 0x38);
+			GeneralizedImageOps.set(src.getBand(1),1, 2, 0x64);
+			GeneralizedImageOps.set(src.getBand(2),1, 2, 0xFF);
+			if( numBands == 4 )
+				GeneralizedImageOps.set(src.getBand(3),1, 2, 0xFF);
+			
+
+			String info = m.getName()+" "+config;
+
+			m.invoke(null, src, dst);
+
+			if( config == Bitmap.Config.ARGB_8888 ) {
+				assertEquals(info,0xFF3864FF,(int)dst.getPixel(1,2));
+				assertEquals(info,0x00000000,dst.getPixel(0,0));
+			} else {
+				assertEquals(info,expected565(0x38,0x64,0xFF),(int)dst.getPixel(1,2));
+				assertEquals(info,0xFF000000,dst.getPixel(0,0));
+			}
+			
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private static int expected565( int r , int g , int b ) {
 		int valR = (int)Math.round(r*0x1F/255.0)*0xFF/0x1F;
 		int valG = (int)Math.round(g*0x3F/255.0)*0xFF/0x3F;

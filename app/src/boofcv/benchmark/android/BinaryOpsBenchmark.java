@@ -54,7 +54,7 @@ public class BinaryOpsBenchmark extends BenchmarkThread {
 	private <T extends ImageSingleBand> void benchmarkThreshold( Class<T> imageType , String imageName , 
 			final ImageUInt8 binary ) {
 		
-		final T image = ConvertBitmap.bitmapToGray(bitmap, null, imageType);
+		final T image = ConvertBitmap.bitmapToGray(bitmap, null, imageType, null);
 		
 		// the mean pixel value is often a reasonable threshold when creating a binary image
 		final double mean = GPixelMath.sum(image)/(image.width*image.height);
