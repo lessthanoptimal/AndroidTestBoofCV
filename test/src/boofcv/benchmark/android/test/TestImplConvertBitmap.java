@@ -6,7 +6,7 @@ import java.nio.IntBuffer;
 
 import android.graphics.Bitmap;
 import android.test.AndroidTestCase;
-import boofcv.benchmark.android.ImplConvertBitmap;
+import boofcv.android.ImplConvertBitmap;
 import boofcv.core.image.FactoryGImageSingleBand;
 import boofcv.core.image.GImageSingleBand;
 import boofcv.core.image.GeneralizedImageOps;

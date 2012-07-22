@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import boofcv.alg.filter.binary.BinaryImageOps;
 import boofcv.alg.filter.binary.GThresholdImageOps;
 import boofcv.alg.misc.GPixelMath;
+import boofcv.android.ConvertBitmap;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageSInt32;
 import boofcv.struct.image.ImageSingleBand;

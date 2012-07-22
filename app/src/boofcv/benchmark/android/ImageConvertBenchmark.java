@@ -6,6 +6,8 @@ import java.nio.IntBuffer;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import boofcv.android.ConvertBitmap;
+import boofcv.android.ImplConvertBitmap;
 import boofcv.struct.image.ImageFloat32;
 import boofcv.struct.image.ImageUInt8;
 import boofcv.struct.image.MultiSpectral;
